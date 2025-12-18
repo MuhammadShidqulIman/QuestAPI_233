@@ -87,3 +87,74 @@ fun HomeScreen(
     }
 }
 
+@Composable
+fun HomeBody(
+    statusUiSiswa: StatusUiSiswa,
+    // edit 2.3 : tambahkan parameter onSiswaClick
+    onSiswaClick: (Int) -> Unit,
+    retryAction: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        when (statusUiSiswa) {
+            is StatusUiSiswa.Loading -> LoadingScreen()
+            // edit 2.5 : tambahkan parameter onSiswaClick
+            is StatusUiSiswa.Success -> DataSiswa(
+                siswa = statusUiSiswa.siswa,
+                onSiswaClick = onSiswaClick
+            )
+
+            is StatusUiSiswa.Error -> ErrorScreen(
+                retryAction = retryAction,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
+}
+
+@Composable
+fun LoadingScreen(modifier: Modifier = Modifier) {
+    Image(
+        modifier = modifier.size(200.dp),
+        painter = painterResource(R.drawable.loading_img),
+        contentDescription = stringResource(R.string.loading)
+    )
+}
+
+@Composable
+fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = stringResource(R.string.error))
+        Button(onClick = retryAction) {
+            Text(stringResource(R.string.retry))
+        }
+    }
+}
+
+@Composable
+fun DataSiswa(
+    siswa: List<DataSiswa>,
+    // edit 2.1 : tambahkan parameter onSiswaClick
+    onSiswaClick: (DataSiswa) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(modifier = modifier) {
+        items(items = siswa, key = { it.id }) { person ->
+            ItemSiswa(
+                siswa = person,
+                modifier = Modifier
+                    .padding(dimensionResource(id = R.dimen.padding_small))
+                    // edit 2.2 : jadikan itemsiswa menjadi clickable()
+                    .clickable { onSiswaClick(person) }
+            )
+        }
+    }
+}
+
